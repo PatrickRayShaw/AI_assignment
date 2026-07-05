@@ -1,0 +1,67 @@
+{
+  "info": {
+    "name": "订单管理 API",
+    "description": "订单管理系统 RESTful API - 支持订单查询、详情、统计、创建和状态更新",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "查询订单列表",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/orders?page=1&page_size=10",
+        "description": "分页查询订单列表，支持 status/start_date/end_date/keyword 筛选"
+      }
+    },
+    {
+      "name": "查询订单详情",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/orders/ORD20240115001",
+        "description": "根据订单ID查询详细信息"
+      }
+    },
+    {
+      "name": "订单统计",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/orders/statistics?group_by=status",
+        "description": "按维度统计订单数据，支持 status/date/category"
+      }
+    },
+    {
+      "name": "创建订单",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:8080/orders",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"customer_name\": \"测试用户\", \"customer_phone\": \"13800000000\", \"items\": [{\"name\": \"测试商品\", \"price\": 99.00, \"quantity\": 1}]}"
+        },
+        "description": "创建新订单"
+      }
+    },
+    {
+      "name": "更新订单状态",
+      "request": {
+        "method": "PUT",
+        "url": "http://localhost:8080/orders/ORD20240215001/status",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"new_status\": \"paid\"}"
+        },
+        "description": "更新订单状态: pending->paid->shipped->completed"
+      }
+    },
+    {
+      "name": "按状态筛选订单",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8080/orders?status=pending",
+        "description": "查询待支付订单"
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+﻿{
+  "name": "邮件通知工作流",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@example.com",
+        "toEmail": "{{.email}}",
+        "subject": "新新闻入库通知：{{.title}}",
+        "text": "亲爱的用户，新闻《{{.title}}》已成功入库。\n来源：{{.source}}\n时间：{{.time}}\n摘要：{{.summary}}"
+      },
+      "name": "发送邮件",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {"main": [[{ "node": "发送邮件", "type": "main" }]]}
+  }
+}

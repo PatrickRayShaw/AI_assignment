@@ -1,0 +1,44 @@
+﻿{
+  "name": "联网兜底工作流",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://www.baidu.com/s?wd={{.query}}"
+      },
+      "name": "百度搜索",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:3b",
+        "prompt": "根据以下搜索结果，用中文总结回答用户问题：{{.query}}\n搜索结果：{{.result}}"
+      },
+      "name": "Ollama推理",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {},
+      "name": "返回结果",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {"main": [[{ "node": "百度搜索", "type": "main" }]]},
+    "百度搜索": {"main": [[{ "node": "Ollama推理", "type": "main" }]]},
+    "Ollama推理": {"main": [[{ "node": "返回结果", "type": "main" }]]}
+  }
+}

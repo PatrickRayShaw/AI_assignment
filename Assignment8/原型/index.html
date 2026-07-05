@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XU-News-AI-RAG 原型</title>
+    <style>
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; }
+        .container { max-width:1200px; margin:0 auto; padding:20px; }
+        .header { background:linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; padding:16px 24px; border-radius:12px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; }
+        .header h1 { font-size:20px; }
+        .nav { display:flex; gap:12px; }
+        .nav a { color:white; text-decoration:none; padding:6px 14px; border-radius:20px; background:rgba(255,255,255,0.2); font-size:14px; }
+        .nav a:hover { background:rgba(255,255,255,0.4); }
+        .card { background:white; border-radius:12px; padding:20px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+        .card-header { font-size:16px; font-weight:600; margin-bottom:16px; color:#1a1a2e; }
+        .search-bar { display:flex; gap:12px; margin-bottom:20px; }
+        .search-bar input { flex:1; padding:10px 16px; border:1px solid #d9d9d9; border-radius:8px; font-size:14px; }
+        .search-bar button { padding:10px 24px; background:#667eea; color:white; border:none; border-radius:8px; cursor:pointer; }
+        .search-bar button:hover { background:#5a6fd6; }
+        .table { width:100%; border-collapse:collapse; }
+        .table th,.table td { text-align:left; padding:12px; border-bottom:1px solid #f0f0f0; font-size:14px; }
+        .table th { background:#fafafa; font-weight:600; color:#555; }
+        .table tr:hover { background:#f5f5ff; }
+        .tag { display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; background:#e6f7ff; color:#1890ff; }
+        .actions { display:flex; gap:8px; }
+        .actions button { padding:4px 12px; border-radius:6px; border:1px solid #d9d9d9; background:white; cursor:pointer; font-size:12px; }
+        .actions button:hover { border-color:#667eea; color:#667eea; }
+        .chart-placeholder { height:200px; background:linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#666; }
+        .pagination { display:flex; justify-content:center; gap:8px; margin-top:16px; }
+        .pagination button { padding:6px 12px; border:1px solid #d9d9d9; border-radius:6px; background:white; cursor:pointer; }
+        .pagination button.active { background:#667eea; color:white; border-color:#667eea; }
+        .login-card { max-width:400px; margin:80px auto; }
+        .login-card input { width:100%; padding:10px 16px; margin-bottom:12px; border:1px solid #d9d9d9; border-radius:8px; }
+        .login-card button { width:100%; padding:10px; background:#667eea; color:white; border:none; border-radius:8px; font-size:14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 登录页面原型 -->
+        <div class="card login-card" style="display:none;" id="loginPage">
+            <div class="card-header" style="text-align:center;">用户登录</div>
+            <input type="text" placeholder="用户名" value="admin">
+            <input type="password" placeholder="密码" value="123456">
+            <button>登 录</button>
+        </div>
+        <!-- 主界面 -->
+        <div id="mainPage">
+            <div class="header">
+                <h1>📰 XU-News-AI-RAG</h1>
+                <div class="nav">
+                    <a href="#">控制台</a>
+                    <a href="#">知识库</a>
+                    <a href="#">语义搜索</a>
+                    <a href="#">聚类分析</a>
+                    <a href="#">设置</a>
+                </div>
+                <span style="font-size:14px;">admin</span>
+            </div>
+            <!-- 控制台 -->
+            <div class="card">
+                <div class="card-header">📊 数据概览</div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;">
+                    <div style="background:#f0f5ff;padding:16px;border-radius:8px;"><span style="color:#667eea;font-size:24px;font-weight:700;">1,234</span><br><span style="color:#888;font-size:13px;">新闻总数</span></div>
+                    <div style="background:#f6ffed;padding:16px;border-radius:8px;"><span style="color:#52c41a;font-size:24px;font-weight:700;">56</span><br><span style="color:#888;font-size:13px;">来源数</span></div>
+                    <div style="background:#fff7e6;padding:16px;border-radius:8px;"><span style="color:#faad14;font-size:24px;font-weight:700;">89%</span><br><span style="color:#888;font-size:13px;">检索准确率</span></div>
+                    <div style="background:#fff1f0;padding:16px;border-radius:8px;"><span style="color:#ff4d4f;font-size:24px;font-weight:700;">12</span><br><span style="color:#888;font-size:13px;">今日更新</span></div>
+                </div>
+            </div>
+            <!-- 搜索 -->
+            <div class="card">
+                <div class="card-header">🔍 语义搜索</div>
+                <div class="search-bar">
+                    <input type="text" placeholder="输入您的查询，例如：量子计算最新进展" value="人工智能">
+                    <button>搜索</button>
+                </div>
+                <div style="color:#888;font-size:13px;margin-bottom:12px;">基于知识库 (共发现 6 条结果，相似度>0.7)</div>
+                <table class="table">
+                    <tr><th>标题</th><th>来源</th><th>时间</th><th>相似度</th></tr>
+                    <tr><td>人工智能在医疗领域的革命性应用</td><td>TechCrunch</td><td>2026-07-04</td><td>0.92</td></tr>
+                    <tr><td>OpenAI发布新一代推理模型</td><td>澎湃新闻</td><td>2026-07-03</td><td>0.87</td></tr>
+                    <tr><td>深度学习最新综述：从CNN到Transformer</td><td>arXiv</td><td>2026-07-02</td><td>0.81</td></tr>
+                </table>
+            </div>
+            <!-- 知识库管理 -->
+            <div class="card">
+                <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span>📚 知识库管理</span>
+                    <div>
+                        <select style="padding:4px 8px;border-radius:6px;border:1px solid #d9d9d9;">
+                            <option>全部类型</option><option>科技</option><option>财经</option>
+                        </select>
+                        <select style="padding:4px 8px;border-radius:6px;border:1px solid #d9d9d9;">
+                            <option>全部时间</option><option>今日</option><option>本周</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="table">
+                    <tr><th><input type="checkbox"></th><th>ID</th><th>标题</th><th>类型</th><th>来源</th><th>时间</th><th>操作</th></tr>
+                    <tr><td><input type="checkbox"></td><td>1</td><td>苹果发布M4芯片</td><td><span class="tag">科技</span></td><td>Reuters</td><td>2026-07-05</td><td class="actions"><button>编辑</button><button>删除</button></td></tr>
+                    <tr><td><input type="checkbox"></td><td>2</td><td>美联储维持利率不变</td><td><span class="tag">财经</span></td><td>Bloomberg</td><td>2026-07-04</td><td class="actions"><button>编辑</button><button>删除</button></td></tr>
+                    <tr><td><input type="checkbox"></td><td>3</td><td>量子计算突破100量子比特</td><td><span class="tag">科技</span></td><td>Nature</td><td>2026-07-03</td><td class="actions"><button>编辑</button><button>删除</button></td></tr>
+                </table>
+                <div class="pagination">
+                    <button>«</button><button class="active">1</button><button>2</button><button>3</button><button>»</button>
+                </div>
+            </div>
+            <!-- 聚类分析 -->
+            <div class="card">
+                <div class="card-header">📈 关键词聚类 Top10</div>
+                <div class="chart-placeholder">📊 柱状图：人工智能(85) 量子计算(62) 芯片(48) 大模型(44) 新能源(39) ...</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

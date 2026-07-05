@@ -1,0 +1,42 @@
+﻿{
+  "name": "聚类分析工作流",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "operation": "SELECT id, title, content FROM news"
+      },
+      "name": "读取数据库",
+      "type": "n8n-nodes-base.sqLite",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const items = .all();\n// 简单TF-IDF + 关键词统计\nconst wordCount = {};\nitems.forEach(item => {\n  const text = (item.json.title + ' ' + item.json.content).toLowerCase();\n  const words = text.match(/[\u4e00-\u9fa5]{2,5}/g) || [];\n  words.forEach(w => { wordCount[w] = (wordCount[w] || 0) + 1; });\n});\nconst sorted = Object.entries(wordCount).sort((a,b) => b[1]-a[1]).slice(0,10);\nreturn sorted.map(([keyword, count]) => ({keyword, count}));"
+      },
+      "name": "关键词统计",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {},
+      "name": "返回结果",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {"main": [[{ "node": "读取数据库", "type": "main" }]]},
+    "读取数据库": {"main": [[{ "node": "关键词统计", "type": "main" }]]},
+    "关键词统计": {"main": [[{ "node": "返回结果", "type": "main" }]]}
+  }
+}

@@ -1,0 +1,88 @@
+﻿{
+  "name": "XU-News-AI-RAG 新闻采集入库工作流",
+  "nodes": [
+    {
+      "name": "定时触发",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [250, 300],
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "hours", "hoursInterval": 1}]
+        }
+      }
+    },
+    {
+      "name": "RSS读取",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [450, 300],
+      "parameters": {
+        "url": "={{$json.url}}",
+        "options": {}
+      }
+    },
+    {
+      "name": "数据清洗",
+      "type": "n8n-nodes-base.function",
+      "position": [650, 300],
+      "parameters": {
+        "functionCode": "// 清洗数据格式\nconst items = $input.all();\nreturn items.map(item => ({\n  json: {\n    title: item.json.title,\n    content: item.json.content || item.json.description,\n    source: item.json.source || 'RSS',\n    source_type: 'rss',\n    url: item.json.link,\n    tags: []\n  }\n}));"
+      }
+    },
+    {
+      "name": "HTTP Request (Embedding)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [850, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:11434/api/embeddings",
+        "authentication": "none",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "model", "value": "all-minilm:latest"},
+            {"name": "prompt", "value": "={{$json.title}} {{$json.content}}"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "入库SQLite",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [1050, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5000/api/knowledge/create",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "title", "value": "={{$('数据清洗').item.json.title}}"},
+            {"name": "content", "value": "={{$('数据清洗').item.json.content}}"},
+            {"name": "source", "value": "={{$('数据清洗').item.json.source}}"},
+            {"name": "source_type", "value": "rss"},
+            {"name": "url", "value": "={{$('数据清洗').item.json.url}}"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "发送邮件通知",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [1250, 300],
+      "parameters": {
+        "fromEmail": "news-bot@xu-news.local",
+        "toEmail": "admin@xu-news.local",
+        "subject": "新新闻已入库: {{$('数据清洗').item.json.title}}",
+        "text": "标题: {{$('数据清洗').item.json.title}}\n来源: {{$('数据清洗').item.json.source}}\n时间: {{$now}}"
+      }
+    }
+  ],
+  "connections": {
+    "定时触发": {"main": [[{"node": "RSS读取", "type": "main", "index": 0}]]},
+    "RSS读取": {"main": [[{"node": "数据清洗", "type": "main", "index": 0}]]},
+    "数据清洗": {"main": [[{"node": "HTTP Request (Embedding)", "type": "main", "index": 0}]]},
+    "HTTP Request (Embedding)": {"main": [[{"node": "入库SQLite", "type": "main", "index": 0}]]},
+    "入库SQLite": {"main": [[{"node": "发送邮件通知", "type": "main", "index": 0}]]}
+  }
+}

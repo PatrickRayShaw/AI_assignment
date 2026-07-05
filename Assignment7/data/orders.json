@@ -1,0 +1,63 @@
+﻿[
+  {
+    "id": 1,
+    "customer_name": "张三",
+    "phone": "13800138001",
+    "amount": 299.0,
+    "items": [
+      {"name": "iPhone手机壳", "price": 49.5, "quantity": 2, "category": "手机配件"},
+      {"name": "钢化膜", "price": 40.0, "quantity": 5, "category": "手机配件"}
+    ],
+    "status": "pending",
+    "create_time": "2024-01-15",
+    "order_number": "ORD20240115001"
+  },
+  {
+    "id": 2,
+    "customer_name": "李四",
+    "phone": "13800138002",
+    "amount": 599.0,
+    "items": [
+      {"name": "蓝牙耳机", "price": 599.0, "quantity": 1, "category": "数码产品"}
+    ],
+    "status": "pending",
+    "create_time": "2024-01-20",
+    "order_number": "ORD20240120002"
+  },
+  {
+    "id": 3,
+    "customer_name": "王五",
+    "phone": "13800138003",
+    "amount": 1299.0,
+    "items": [
+      {"name": "机械键盘", "price": 1299.0, "quantity": 1, "category": "电脑配件"}
+    ],
+    "status": "shipped",
+    "create_time": "2024-02-01",
+    "order_number": "ORD20240201003"
+  },
+  {
+    "id": 4,
+    "customer_name": "赵六",
+    "phone": "13800138004",
+    "amount": 89.0,
+    "items": [
+      {"name": "鼠标垫", "price": 89.0, "quantity": 1, "category": "电脑配件"}
+    ],
+    "status": "completed",
+    "create_time": "2024-02-05",
+    "order_number": "ORD20240205004"
+  },
+  {
+    "id": 5,
+    "customer_name": "钱七",
+    "phone": "13800138005",
+    "amount": 1990.0,
+    "items": [
+      {"name": "显示器", "price": 1990.0, "quantity": 1, "category": "电脑配件"}
+    ],
+    "status": "pending",
+    "create_time": "2024-02-10",
+    "order_number": "ORD20240210005"
+  }
+]
