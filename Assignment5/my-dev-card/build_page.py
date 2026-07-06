@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""
+build_page.py — 生成个人技术名片网站 (Personal Tech Card)
+用法: python build_page.py
+输出: index.html（可直接在浏览器打开，也可部署到 GitHub Pages）
+"""
+
+def main():
+    # ========== 个人信息配置 ==========
+    personal_info = {
+        "name": "Ray Shaw",
+        "title": "Robotics Algorithm Engineer",
+        "description": (
+            "B.E. in Robotics Engineering from Guangdong University of Technology. "
+            "1 year of experience in robotics algorithm development. Proficient in "
+            "C++/Python, ROS/ROS2, OpenCV, and EtherCAT, with a strong background "
+            "in robot kinematics, computer vision, deep learning, and reinforcement "
+            "learning. Experienced with Linux/Ubuntu real-time systems, embedded STM32, "
+            "Mujoco simulation, and SolidWorks/CAD."
+        ),
+        "skills": [
+            "C++", "Python", "ROS/ROS2", "OpenCV",
+            "Linux/Ubuntu", "EtherCAT", "Embedded STM32", "Docker",
+            "Machine Learning", "Deep Learning", "PyTorch", "Mujoco",
+            "Kinematics", "SolidWorks/CAD", "PLC", "Git",
+        ],
+        "projects": [
+            {
+                "name": "Vision-Guided Grinding Robot",
+                "desc": "Industrial grinding robot with camera-based edge detection, spatial coordinate transformation, and real-time force-feedback trajectory correction using EtherCAT servo control.",
+                "tags": ["OpenCV", "C++", "EtherCAT", "Kinematics"],
+            },
+            {
+                "name": "AI-Driven Robot Arm Control",
+                "desc": "ROS2-based platform integrating AI agents for autonomous pick-and-place. Uses WebSocket for vision feedback and Docker for modular deployment on Ubuntu real-time systems.",
+                "tags": ["ROS2", "Python", "Docker", "AI"],
+            },
+            {
+                "name": "Mujoco Simulation Platform",
+                "desc": "Full robot simulation pipeline: SolidWorks CAD → URDF → Mujoco XML. Includes custom sensors, grippers, and camera models for RL training environments.",
+                "tags": ["Mujoco", "PyTorch", "SolidWorks", "RL"],
+            },
+            {
+                "name": "Mobile Robot Control System",
+                "desc": "Edge-computing mobile platform on Ubuntu 22.04 with real-time kernel. Integrated AnyControl PLC, ST language programming, and visual servo for autonomous navigation.",
+                "tags": ["ROS2", "EtherCAT", "PLC", "Ubuntu"],
+            },
+        ],
+        "contact": {
+            "github": "https://github.com/PatrickRayShaw",
+            "email": "2534111652@qq.com",
+            "phone": "18198635053",
+            "location": "Shenzhen, China",
+        },
+    }
+
+    # ========== HTML 模板 ==========
+    html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{personal_info['name']} — Tech Card</title>
+    <style>
+        :root {{
+            --bg: #0a0e17;
+            --card-bg: #111827;
+            --card-border: #1e293b;
+            --accent: #00d4aa;
+            --accent2: #60a5fa;
+            --text: #e2e8f0;
+            --text2: #94a3b8;
+            --tag-bg: #1a2332;
+            --tag-text: #7dd3fc;
+            --divider: #1e293b;
+        }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            line-height: 1.6;
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,212,170,0.08), transparent),
+                radial-gradient(ellipse 60% 50% at 90% 90%, rgba(96,165,250,0.06), transparent);
+        }}
+        .card {{
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            max-width: 780px;
+            width: 100%;
+            padding: 48px 44px;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.4), 0 1px 2px rgba(255,255,255,0.04) inset;
+        }}
+        /* ====== HEADER ====== */
+        .header {{
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 28px;
+        }}
+        .avatar {{
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: #0a0e17;
+            flex-shrink: 0;
+        }}
+        .header-text h1 {{
+            font-size: 2em;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: -0.02em;
+        }}
+        .header-text .title {{
+            font-size: 1.05em;
+            color: var(--accent);
+            font-weight: 500;
+            margin-top: 2px;
+        }}
+        .header-text .meta {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 0.85em;
+            color: var(--text2);
+        }}
+        .meta span {{
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }}
+        /* ====== DESCRIPTION ====== */
+        .description {{
+            color: var(--text2);
+            font-size: 0.95em;
+            line-height: 1.7;
+            margin-bottom: 32px;
+            padding: 20px 24px;
+            background: rgba(255,255,255,0.015);
+            border-radius: 14px;
+            border: 1px solid var(--divider);
+        }}
+        /* ====== SECTION ====== */
+        .section {{ margin-bottom: 30px; }}
+        .section-title {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 16px;
+        }}
+        .section-title::before {{
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 2px;
+        }}
+        /* ====== SKILLS ====== */
+        .skills {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }}
+        .skill {{
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 5px 14px;
+            border-radius: 8px;
+            font-size: 0.84em;
+            font-weight: 500;
+            border: 1px solid rgba(125,211,252,0.12);
+            transition: all 0.2s;
+        }}
+        .skill:hover {{
+            border-color: var(--accent2);
+            color: #bae6fd;
+            transform: translateY(-1px);
+        }}
+        /* ====== PROJECTS ====== */
+        .projects {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }}
+        .project-card {{
+            background: rgba(255,255,255,0.016);
+            border: 1px solid var(--divider);
+            border-radius: 14px;
+            padding: 18px 20px;
+            transition: all 0.25s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }}
+        .project-card:hover {{
+            border-color: var(--accent);
+            background: rgba(0,212,170,0.03);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+        }}
+        .project-card h3 {{
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }}
+        .project-card p {{
+            font-size: 0.82em;
+            color: var(--text2);
+            line-height: 1.55;
+            flex: 1;
+        }}
+        .project-tags {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }}
+        .project-tag {{
+            font-size: 0.72em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(0,212,170,0.1);
+            color: var(--accent);
+            border: 1px solid rgba(0,212,170,0.15);
+        }}
+        /* ====== CONTACT ====== */
+        .contact-row {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }}
+        .contact-link {{
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 18px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid var(--divider);
+            color: var(--text2);
+        }}
+        .contact-link:hover {{
+            border-color: var(--accent2);
+            color: #f1f5f9;
+            background: rgba(96,165,250,0.06);
+        }}
+        .contact-link.github {{ border-color: rgba(96,165,250,0.25); color: var(--accent2); }}
+        .contact-link.email {{ border-color: rgba(0,212,170,0.25); color: var(--accent); }}
+        .contact-icon {{
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }}
+        /* ====== FOOTER ====== */
+        .footer {{
+            text-align: center;
+            color: #475569;
+            font-size: 0.78em;
+            margin-top: 36px;
+            padding-top: 20px;
+            border-top: 1px solid var(--divider);
+        }}
+        /* ====== RESPONSIVE ====== */
+        @media (max-width: 640px) {{
+            .card {{ padding: 28px 22px; }}
+            .header {{ flex-direction: column; text-align: center; }}
+            .header-text .meta {{ justify-content: center; }}
+            .projects {{ grid-template-columns: 1fr; }}
+            .contact-row {{ flex-direction: column; align-items: stretch; }}
+            .contact-link {{ justify-content: center; }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- ========== HEADER ========== -->
+        <div class="header">
+            <div class="avatar">RS</div>
+            <div class="header-text">
+                <h1>{personal_info['name']}</h1>
+                <div class="title">{personal_info['title']}</div>
+                <div class="meta">
+                    <span>📍 {personal_info['contact']['location']}</span>
+                    <span>📞 {personal_info['contact']['phone']}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ABOUT ========== -->
+        <div class="description">{personal_info['description']}</div>
+
+        <!-- ========== SKILLS ========== -->
+        <div class="section">
+            <div class="section-title">Skills</div>
+            <div class="skills">
+"""
+
+    for skill in personal_info['skills']:
+        html_content += f'                <span class="skill">{skill}</span>\n'
+
+    html_content += """            </div>
+        </div>
+
+        <!-- ========== PROJECTS ========== -->
+        <div class="section">
+            <div class="section-title">Projects</div>
+            <div class="projects">
+"""
+
+    for proj in personal_info['projects']:
+        html_content += f"""                <div class="project-card">
+                    <h3>{proj['name']}</h3>
+                    <p>{proj['desc']}</p>
+                    <div class="project-tags">
+"""
+        for tag in proj['tags']:
+            html_content += f'                        <span class="project-tag">{tag}</span>\n'
+        html_content += """                    </div>
+                </div>
+"""
+
+    html_content += f"""            </div>
+        </div>
+
+        <!-- ========== CONTACT ========== -->
+        <div class="section">
+            <div class="section-title">Contact</div>
+            <div class="contact-row">
+                <a href="{personal_info['contact']['github']}" target="_blank" rel="noopener" class="contact-link github">
+                    <svg class="contact-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    GitHub
+                </a>
+                <a href="mailto:{personal_info['contact']['email']}" class="contact-link email">
+                    <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>
+                    {personal_info['contact']['email']}
+                </a>
+            </div>
+        </div>
+
+        <!-- ========== FOOTER ========== -->
+        <div class="footer">
+            © 2025 Ray Shaw &mdash; Built with build_page.py
+        </div>
+    </div>
+</body>
+</html>
+"""
+
+    # ========== 写入文件 ==========
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+    print("[OK] index.html generated successfully!")
+    print(f"   Size: {len(html_content)} bytes")
+    print(f"   Open: start index.html")
+
+
+if __name__ == "__main__":
+    main()
